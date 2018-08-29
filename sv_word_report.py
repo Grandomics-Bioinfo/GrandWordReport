@@ -43,8 +43,8 @@ class Report(object):
         self._template_file = template_file
         self._output_path = output_path
         self.tpl = DocxTemplate(self._template_file)
-    
-    
+
+
     def format_cover_table_string(self, string):
         return "{}".format(string)
 
@@ -63,8 +63,9 @@ class Report(object):
         }
         return proj_info
 
-    
-    def get_img(self, file_name, width=110, flag=True):
+
+    '''
+    def get_img(self, file_name, width=110.1, flag=True):
         """TODO: Docstring for proc_img.
 
         :file_name: TODO
@@ -74,6 +75,7 @@ class Report(object):
         if 0:
             return InlineImage(self.tpl, file_name, width=Mm(width))
         return file_name
+    '''
 
     def N50(self, file_name):
         with open(file_name, 'r') as io:
@@ -113,7 +115,7 @@ class Report(object):
 
     def fastq_qc(self):
         read_distribute = self.get_first_match("reads.distribute.xls")
-        
+
         read_stats = self.get_first_match("reads.stat.xls")
 
         fastq_qc = {}
@@ -149,16 +151,16 @@ class Report(object):
                     if key == "error_rate":
                         value = "{0:.2f}%".format(10*float(value[0:6]))
                     if not key == "error_rate":
-                        value = "{:,}".format(int(value))                                        
+                        value = "{:,}".format(int(value))
                     if key in stats_row_name:
                         stats_list.append(value)
                     if len(stats_list) == len(stats_row_name):
                         break
             bam_stat_dict = dict(i for i in zip(stats_row_name, stats_list))
-            bam_stat_dict["reads_map_rate"] = "{0:.2f}%".format(float(bam_stat_dict["reads_mapped"].replace(',',''))/float(bam_stat_dict["raw_total_sequences"].replace(',','')))
-            bam_stat_dict["bases_map_rate"] = "{0:.2f}%".format(float(bam_stat_dict["bases_mapped"].replace(',',''))/float(bam_stat_dict["total_length"].replace(',','')))
+            bam_stat_dict["reads_map_rate"] = "{0:.2f}%".format(100*float(bam_stat_dict["reads_mapped"].replace(',',''))/float(bam_stat_dict["raw_total_sequences"].replace(',','')))
+            bam_stat_dict["bases_map_rate"] = "{0:.2f}%".format(100*float(bam_stat_dict["bases_mapped"].replace(',',''))/float(bam_stat_dict["total_length"].replace(',','')))
         return bam_stat_dict
-        
+
     def sv_num(self):
         read_svnum = self.get_first_match("re4.svnum")
         with open(read_svnum, "r") as io:
@@ -208,7 +210,7 @@ def get_args():
     parser.add_argument('--sample_id', help='样本编号')
     parser.add_argument('--customer_institute', help='客户单位，会出现在封面TITLE')
     parser.add_argument('--reporter', help='报告填写人，会出现在封面TITLE', default='苏亚男、郑宇')
-    parser.add_argument('--supervisor', help='报告审核人，会出现在封面TITLE', default='李丕栋')
+    parser.add_argument('--supervisor', help='报告审核人，会出现在封面TITLE', default='梁帆')
     parser.add_argument('--output_path', help='结果目录，报告会存放在该目录下,文件名称： {proj_id}_sv_report_{date}.docx')
     #  parser.add_argument("--verbose", help="increase output verbosity",
                         #  action="store_false")
@@ -222,7 +224,7 @@ def main():
     args = get_args()
     BASE_DIR = os.path.split(os.path.realpath(__file__))[0]
     template_file = os.path.join(BASE_DIR, 'template/sv_template.docx')
-    report = Report(args.proj_id, args.sample_id, args.customer_institute, args.reporter, args.supervisor, 
+    report = Report(args.proj_id, args.sample_id, args.customer_institute, args.reporter, args.supervisor,
         args.proj_path, template_file, args.output_path)
     report.create_report()
 
